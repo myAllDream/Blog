@@ -1,7 +1,5 @@
 [TOC]
 
-# 《Android权威指南第三版》
-
 - AAPT - Android Asset Packaging Tool ：Android资源打包工具
 - 现代Android编译系统使用Gradle编译工具，要从命令行使用Gradle，请切换到项目目录并执行以下命令:
   `$ ./gradlew tasks`，执行以上命令会显示一系列可用任务。你需要的任务是installDebug，因此，再执行以下命令:`$ ./gradlew installDebug`，以上命令将把应用安装到当前连接的设备上，但不会运行它。要运行应用，需要在设备上手 动启动
