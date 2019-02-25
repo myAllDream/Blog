@@ -123,7 +123,7 @@ public class MyService extends Service {
 <service android:name=".MyService"></service>
 ```
 
-*请注意：为了保证应用的安全，请使用显式Intent启动或绑定一个Service，请不要在<service>标签中配置intent-filter。*
+*请注意：为了保证应用的安全，请使用显式Intent启动或绑定一个Service，请不要在/<service>标签中配置intent-filter。*
 
 - 在Activity组件中通过onCreate()声明“启动Service和停止Service”代码。
 
@@ -178,8 +178,13 @@ MyService : OnStartCommand
 
 为了可以简单地创建一个可开启单独线程、会自动停止的服务，Android专门提供了一个IntentService类，这个类就很好的解决了上面所提到的两种尴尬。
 
+- IntentService 的优点：子线程中执行，可以自动结束，不容易被系统杀死(普通线程脱离四大组件后优先级非常低)
+- HandlerThread 继承自 Thread，是一种可以使用 Handler 的 Thread，内部创建了消息队列。外界需要通过 Handler 的消息方式来通知 HandlerThread 执行一个具体的任务。具体使用场景是 IntentService。由于 HandlerThread 的 run 方法是一个无限循环，因此当明确不需要再使用 HandlerThread 时，可以通过它的 quit 或 quitSafely 方法来终止线程的执行。
+- **IntentService 第一次被启动时，onCreate 方法会被调用，其中会创建一个 HandlerThread，然后使用它的 Looper 来构造一个 Handler 对象 mServiceHandler，这样通过 mServiceHandler 发送的消息最终都会在 HandlerThread 中执行。**
+- 另外，由于每执行一个后台任务就必须启动一次 IntentService，而 IntentService 内部则通过消息的方式向 HandlerThread 请求执行任务，Handler 中的 Looper 是顺序处理消息的，这就意味着 IntentService 也是顺序执行后台任务的，当有多个后台任务同时存在时，这些后台任务会按照外界发起的顺序排队执行。
+
 - **IntentService的作用：**
-  当我们需要这样一次性完成的任务时，就可以使用IntentService来完成。
+  当我们需要这样**一次性**完成的任务时，就可以使用IntentService来完成。
 - **IntentService的用法：**
   1）新建一个MyIntentService类，继承自IntentService，并重写父类的onHandleIntent()方法，代码如下：
 
