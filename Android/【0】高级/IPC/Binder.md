@@ -10,6 +10,8 @@ Binder **工作原理**：
 
 
 
+![binder](http://s191.photo.store.qq.com/psb?/V14L47VC0w3vOf/ZUdc9b8LQVmz5JWp5b6StkyrJFlr32X3kfbzVP3j9co!/b/dL8AAAAAAAAA)
+
 AIDL的**本质**是系统提供了一套可快速实现Binder的工具。关键类和方法：
 
 - **AIDL接口**：继承**IInterface**。
@@ -29,7 +31,7 @@ AIDL的**本质**是系统提供了一套可快速实现Binder的工具。关键
 
 - **onTransact()**：运行服务端的Binder线程池中，当客户端发起跨进程请求时，远程请求会通过系统底层封装后交由此方法来处理。
 
-- **transact()**：运行在客户端，当客户端发起远程请求的同时将当前线程挂起。之后调用服务端的onTransact()直到远程请求返回，当前线程才继续执行。
+- **transact()**：运行在客户端，**当客户端发起远程请求的同时将当前线程挂起。**之后调用服务端的onTransact()直到远程请求返回，当前线程才继续执行。
 
 
 

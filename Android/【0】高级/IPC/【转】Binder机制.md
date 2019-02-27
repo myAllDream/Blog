@@ -81,7 +81,7 @@ Kernel space 可以执行任意命令，调用系统的一切资源； User spac
 
 ## 4. Binder 进程与线程
 
-![Binder 进程与线程]()
+![Binder 进程与线程](http://s191.photo.store.qq.com/psb?/V14L47VC0w3vOf/xgKlj4TFjwjD5LFps5OnaEhA0aAts7Y2dHvJW48UBGw!/b/dL8AAAAAAAAA)
 
 对于底层Binder驱动，通过 binder_procs 链表记录所有创建的 binder_proc 结构体，binder 驱动层的每一个 binder_proc 结构体都与用户空间的一个用于 binder 通信的进程一一对应，且每个进程有且只有一个 ProcessState 对象，这是通过单例模式来保证的。在每个进程中可以有很多个线程，每个线程对应一个 IPCThreadState 对象，IPCThreadState 对象也是单例模式，即一个线程对应一个 IPCThreadState 对象，在 Binder 驱动层也有与之相对应的结构，那就是 Binder_thread 结构体。在 binder_proc 结构体中通过成员变量 rb_root threads，来记录当前进程内所有的 binder_thread。
 
@@ -91,9 +91,7 @@ Binder 线程池：每个 Server 进程在启动时创建一个 binder 线程池
 
 ## 5. ServiceManager 启动
 
-了解了 Binder 驱动，怎么与 Binder 驱动进行通讯呢？那就是通过 ServiceManager，好多文章称 ServiceManager 是 Binder 驱动的守护进程，大管家，其实 ServiceManager 的作用很简单就是提供了查询服务和注册服务的功能。下面我们来看一下 ServiceManager 启动的过程。
-
-![ServiceManager 启动](http://s191.photo.store.qq.com/psb?/V14L47VC0w3vOf/xgKlj4TFjwjD5LFps5OnaEhA0aAts7Y2dHvJW48UBGw!/b/dL8AAAAAAAAA)
+了解了 Binder 驱动，怎么与 Binder 驱动进行通讯呢？那就是通过 ServiceManager，好多文章称 ServiceManager 是 Binder 驱动的守护进程，大管家，其实 ServiceManager 的作用很简单就是提供了查询服务和注册服务的功能。
 
 - ServiceManager 分为 framework 层和 native 层，framework 层只是对 native 层进行了封装方便调用，图上展示的是 native 层的 ServiceManager 启动过程。
 - ServiceManager 的启动是系统在开机时，init 进程解析 init.rc 文件调用 service_manager.c 中的 main() 方法入口启动的。 native 层有一个 binder.c 封装了一些与 Binder 驱动交互的方法。
