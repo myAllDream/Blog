@@ -366,4 +366,87 @@ FragmentPageAdapter会调用事务的detach方法来处理，而不是使用remo
 
 
 
+**1、replace，加回退栈，Fragment不销毁，但是切换回销毁视图和重新创建视图。**
+
+ **2、replace,不加回退栈，Fragment销毁掉。**
+
+  **3、hide、show,Fragment不销毁，也不销毁视图。隐藏和显示不走生命周期。**
+
+
+
+### 七、FragmentTransaction
+
+Fragment完整生命周期依次是： onAttach()、onCreate()、onCreateView()、onActivityCreated()、onStart()、onResume()、 onPause()、onStop()、onDestroyView()、onDestroy()、onDetach()。
+几个主要的方法： 
+
+- onAttach():当碎片和活动建立关联的时候调用。 
+- onCreate():当碎片被建立的时候调用。 
+- onCreateView():为碎片创建视图（加载布局）时调用。 
+- onActivityCreated():确保与碎片相关联的活动一定已经创建完毕的时候调用。 
+- onDestroyView():当碎片管理的视图被移除的时候调用。 
+- onDetach():当碎片和活动解除关联的时候调用。
+- 创建时： onAttach()、onCreate()、onCreateView()、onActivityCreated()、onStart()、onResume()。
+- 销毁时（没有用到返回栈）： onPause()、onStop()、onDestroyView()、onDestroy()、onDetach()。
+- 重新返回到上一个Fragment（没有用到返回栈）： onAttach()、onCreate()、onCreateView()
+- onActivityCreated()、onStart()、onResume()。
+- 当用到返回栈时
+
+```java
+将Fragment增加到返回栈中：
+FragmentManager fm = getSupportFragment();
+FragmentTransaction ft = fm.beginTransaction();
+ft.replace(ID, 实例);
+ft.addToBackStack(null);//参数是描述返回栈的状态，一般为null。
+ft.commit();
+```
+
+-  销毁时（用到返回栈）： onPause()、onStop()、onDestroyView()。 
+- 重新返回到上一个Fragment（用到返回栈）： onCreateView()、onActivityCreated()、onStart()、onResume()。
+
+
+
+注意：我们操作的fragment会被增加到一个队列中，然后根据顺序显示该队列中已 经创建视图的fragmet（调用了onCreateView(……)）。 
+入队的标准是：该fragment的onCreateView（……）被调用。 
+出队的标准是：该fragment的onDetach（）被调用。
+
+- add(id, fragment) —— 增加framgent到队列中，并显示该fragment到指定布局中。 
+  生命周期调用： 
+  当fragment与activity连接并被建立时（onAttach()、onCreate()被调用过） 
+  onCreateView()、onActivityCreated()、onStart()、onResume()。 
+  当fragment与activity未连接并未被建立时（onAttach()、onCreate()未被调用过） 
+  onAttach()、onCreate()、onCreateView()、onActivityCreated()、onStart()、onResume()。 
+  注意：同一个Fragmen不能增加到队列两次或多次。
+- show(fragment) —— 显示队列中的指定framgent。 
+  生命周期的调用： 
+  当队列中不存在该fragment时，回调onAttach()、onCreate()。 
+  当队列中存在该fragment时并被调用过hide(fragment)时，回调onHiddenChange(boolean)。 
+  其他情况没有回调函数。
+- replace(id, fragment) —— 先检查队列中是否已经存在，存在就会崩溃，不存在就会进入队列并把其他fragment清出队列，最后显示该fragment到指定布局中。 
+  生命周期的调用：同add(id, fragment)。
+- remove(fragment) —— 销毁队列中指定的fragment。 
+  生命周期调用： 
+  当队列中不存在该fragment时，不会有任何反应。 
+  当队列中存在该fragment时，fragment的生命周期执行情况主要依赖是否当前fragment进入到返回栈。
+- hide(fragment) —— 隐藏队列中指定的fragment，相当于调用视图的.setVisibility(View.GONE) 
+  生命周期的调用： 
+  当队列中存在该fragment时，回调onHiddenChange(boolen) 
+  当队列中不存在该fragment时，回调onAttach()、onCreate()、onHiddenChange(boolen)。
+- detach(fragment) —— 销毁指定frament的视图，并且该fragment的onCreateVieew(……)不能再被调用（除非调用attach(fragment)重新连接） 
+  生命周期的调用： 
+  当队列中存在该fragment时，回调onDestroyView() 
+  当队列中不存在该fragment时，回调onAttach()、onCreate()。
+- attach(fragment) —— 创建指定fragment的视图。标识该fragment的onCreateView(……)能被调用。 
+  生命周期的调用： 
+  当队列中存在该fragment时且被调用detach(fragment)时，回调createView()、onActivityCreated()
+- onResume()。 
+  当队列中不存在该fragment时，回调onAttach()、onCreate()。 
+  其他情况没有用。
+- addToBackStack(string) —— 使本次事务增加的fragment进入当前activity的返回栈中。当前参数是对返回栈的描述，没什么实际用途。传入null即可。
+- commit() —— 提交本次事务，可在非主线程中被调用。主要用于多线程处理情况。
+- commitNow() —— 提交本次事务，只在主线程中被调用。 这时候addToBackStack(string)不可用。
+
+
+
+### 链接
+
 - [Bugly](https://mp.weixin.qq.com/s/dUuGSVhWinAnN9uMiBaXgw)
